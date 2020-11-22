@@ -64,8 +64,6 @@ expireTime =(method_estimated_effort + 1)s = (2+1)s = 3s
             waitTime = 10*2 + 1,
             expireTime = 2 + 1)
     public Long execute(long id, String name) throws InterruptedException {
-        System.out.println(new Date());
-        COUNT++;
         Thread.sleep(2000); // mock 2s to complete this method.
         return id;
     }
