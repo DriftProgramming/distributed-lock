@@ -2,11 +2,14 @@ package org.driftprogramming.distributedlock;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class MockService {
+
+    public static Integer COUNT = 0;
 
     @DistributedLock
     public String execute(String name, String id) {
@@ -25,12 +28,14 @@ public class MockService {
 
     @DistributedLock(
             lockType = LockType.X_SYSTEM_INVENTORY_LOCK,
-            lockIndex = {0,1},
+            lockIndex = {0, 1},
             timeUnit = TimeUnit.SECONDS,
-            waitTime = 12,
+            waitTime = 10 * 2 + 1,
             expireTime = 20)
     public Long execute(long id, String name) throws InterruptedException {
-        Thread.sleep(25000);
+        System.out.println(new Date());
+        COUNT++;
+        Thread.sleep(1000);
         return id;
     }
 }
