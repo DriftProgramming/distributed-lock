@@ -62,7 +62,7 @@ expireTime =(method_estimated_effort + 1)s = (2+1)s = 3s
             lockIndex = {0, 1},
             timeUnit = TimeUnit.SECONDS,
             waitTime = 10*2 + 1, // Assuming we have 10 concurrency threads to call 
-            expireTime = 2 + 1)
+            expireTime = 2 + 1) // After 3s, the lock will be unlock/release automatically to aviod dead lock.
     public Long execute(long id, String name) throws InterruptedException {
         Thread.sleep(2000); // mock 2s to complete this method.
         return id;
