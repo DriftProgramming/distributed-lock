@@ -61,7 +61,7 @@ expireTime =(method_estimated_effort + 1)s = (2+1)s = 3s
             lockType = LockType.X_SYSTEM_INVENTORY_LOCK,
             lockIndex = {0, 1},
             timeUnit = TimeUnit.SECONDS,
-            waitTime = 10*2 + 1,
+            waitTime = 10*2 + 1, // Assuming we have 10 concurrency threads to call 
             expireTime = 2 + 1)
     public Long execute(long id, String name) throws InterruptedException {
         Thread.sleep(2000); // mock 2s to complete this method.
