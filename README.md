@@ -1,3 +1,5 @@
+# Distributed Lock based on Redisson
+
 ## DistributedLock Annotation
 ```
 @Target(ElementType.METHOD)
@@ -15,7 +17,7 @@ public @interface DistributedLock {
 }
 ```
 
-#### lockType
+#### 1. lockType
 You can add any business type of lock in this lock type enum. e.g. XXX_SYSTEM_ORDER_LOCK
 ```aidl
 public enum LockType {
@@ -24,16 +26,16 @@ public enum LockType {
 }
 ```
 
-#### lockIndex
+#### 2. lockIndex
 An array of parameters index which need to be locked.
 
-#### timeUnit
+#### 3. timeUnit
 The unit of lock wait time and expire time. Default is TimeUnit.SECONDS.
 
-#### expireTime
+#### 4. expireTime
 How long this lock will be expired/unlocked automatically. Default is 30s.
 
-#### waitTime
+#### 5.waitTime
 How long we should wait if the current thread can not get the lock immediately. Default is 30s.
 
 
@@ -69,6 +71,7 @@ expireTime =(method_estimated_effort + 1)s = (2+1)s = 3s
     }
 ```
 
-
-
-
+## Suggestion
+we suggested you use （Optimistic Lock + Distributed Lock）to keep the Eventual Consistency.
+E.g. what if somehow one distributed lock method running too long and can not unlock as we expected, so
+you need to use Optimistic Lock to keep the business data has Eventual Consistency.
