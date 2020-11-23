@@ -29,6 +29,14 @@ public class DistributedLockAspect {
 
     @Around("@annotation(distributedLock)")
     public Object around(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
+        try {
+            return execute(joinPoint, distributedLock);
+        } catch (Exception e) {
+            throw new DistributedLockException("Distributed lock failed.", e);
+        }
+    }
+
+    private Object execute(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
         String prefix = getLockPrefix(joinPoint, distributedLock);
         RLock lock = getLock(joinPoint.getArgs(), distributedLock.lockIndex(), prefix);
         boolean isSuccessLocked = lock.tryLock(
