@@ -79,7 +79,7 @@ spring.redis.port=6379
 ## How to Handle Exception
 ```aidl
 try {
-  service.execute(id,name);
+  service.execute(id,name); // Will get distrubuted lock here.
 } catch(DistributedLockException distributedLockException) {
   // handle distributedlock exception
 } catch(OtherException otherException) {
