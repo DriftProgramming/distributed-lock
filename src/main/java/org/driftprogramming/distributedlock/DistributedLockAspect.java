@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class DistributedLockAspect {
     public static final String MESSAGE_INVALID_INDEX = "Lock index out of range, please check the value.";
     public static final String MESSAGE_GET_LOCK_FAILED = "Thread %s get lock %s failed after %s %s.";
+    public static final String MESSAGE_DISTRIBUTED_LOCK_FAILED = "Distributed lock failed.";
 
     @Resource
     private Redisson redisson;
@@ -32,7 +33,7 @@ public class DistributedLockAspect {
         try {
             return execute(joinPoint, distributedLock);
         } catch (Exception e) {
-            throw new DistributedLockException("Distributed lock failed.", e);
+            throw new DistributedLockException(MESSAGE_DISTRIBUTED_LOCK_FAILED, e);
         }
     }
 
