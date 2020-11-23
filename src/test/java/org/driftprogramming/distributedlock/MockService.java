@@ -35,8 +35,8 @@ public class MockService {
             expireTime = 3)
     public Long execute(long id, String name) throws InterruptedException {
         COUNT++;
-        int millis = COUNT == 2 ? 30000 : 2000;
-        System.out.println("Thread " + Thread.currentThread().getId() + " will sleep: " + millis + "millis");
+        int millis = COUNT == 2 ? 25000 : 2000;
+        System.out.println("Thread " + Thread.currentThread().getId() + " will work: " + millis + " millis");
         Thread.sleep(millis);
         return id;
     }
