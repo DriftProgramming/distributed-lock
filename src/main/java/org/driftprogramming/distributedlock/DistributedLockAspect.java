@@ -1,5 +1,6 @@
 package org.driftprogramming.distributedlock;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,9 +19,10 @@ import java.util.stream.Collectors;
 @Aspect
 @Component
 @Order(1)
+@Slf4j
 public class DistributedLockAspect {
     public static final String MESSAGE_INVALID_INDEX = "Lock index out of range, please check the value.";
-    public static final String MESSAGE_GET_LOCK_FAILED = "Get lock %s failed after %s %s.";
+    public static final String MESSAGE_GET_LOCK_FAILED = "Thread %s get lock %s failed after %s %s.";
 
     @Resource
     private Redisson redisson;
@@ -37,10 +39,15 @@ public class DistributedLockAspect {
             try {
                 return joinPoint.proceed();
             } finally {
-                lock.unlock();
+                try {
+                    lock.unlock();
+                } catch (Exception e) {
+                    log.error("Thread " + Thread.currentThread().getId() + " " + e.getMessage());
+                }
             }
         } else {
             throw new RuntimeException(String.format(MESSAGE_GET_LOCK_FAILED,
+                    Thread.currentThread().getId(),
                     distributedLock.lockType(),
                     distributedLock.waitTime(),
                     distributedLock.timeUnit()

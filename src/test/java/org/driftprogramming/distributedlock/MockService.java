@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -31,11 +32,12 @@ public class MockService {
             lockIndex = {0, 1},
             timeUnit = TimeUnit.SECONDS,
             waitTime = 10 * 2 + 1,
-            expireTime = 20)
+            expireTime = 3)
     public Long execute(long id, String name) throws InterruptedException {
-        System.out.println(new Date());
         COUNT++;
-        Thread.sleep(1000);
+        int millis = COUNT == 2 ? 30000 : 2000;
+        System.out.println("Thread " + Thread.currentThread().getId() + " will sleep: " + millis + "millis");
+        Thread.sleep(millis);
         return id;
     }
 }

@@ -55,6 +55,13 @@ waitTime =(concurrency_threads*method_estimated_effort + 1)s = (10*2 + 1)s = 21s
 expireTime =(method_estimated_effort + 1)s = (2+1)s = 3s
 ```
 
+## Redis Config
+```aidl
+spring.redis.host=127.0.0.1
+spring.redis.port=6379
+#spring.redis.password=
+```
+
 ## A fully usage example
 ```aidl
 @DistributedLock(

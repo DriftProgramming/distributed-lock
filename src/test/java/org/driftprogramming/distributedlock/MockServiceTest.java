@@ -55,7 +55,7 @@ class MockServiceTest {
     @Test
     void test_multiple_threads_lock() throws InterruptedException {
         int THREAD_POOL_SIZE = 100;
-        int JOB_COUNT = 40;
+        int JOB_COUNT = 10;
         List<Long> ids = new CopyOnWriteArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         CountDownLatch latch = new CountDownLatch(JOB_COUNT);
