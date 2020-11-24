@@ -1,4 +1,6 @@
-package org.driftprogramming.distributedlock;
+package org.driftprogramming.distributedlock.annotation;
+
+import org.driftprogramming.distributedlock.LockType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,7 +13,9 @@ import java.util.concurrent.TimeUnit;
 public @interface DistributedLock {
     LockType lockType() default LockType.Default;
 
-    int[] lockIndex() default {};
+    String value() default "";
+
+    String[] key() default {};
 
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 

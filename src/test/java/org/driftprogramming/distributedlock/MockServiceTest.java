@@ -19,40 +19,6 @@ class MockServiceTest {
     MockService service;
 
     @Test
-    void test_method_lock() {
-        String name = "denghejun";
-        String id = "007";
-        String result = service.execute(name, id);
-        Assert.assertEquals(name + id, result);
-    }
-
-    @Test
-    void test_param_index_lock() {
-        String name = "denghejun";
-        Long id = 111l;
-        Long result = service.execute(name, id);
-        Assert.assertEquals(id, result);
-    }
-
-    @Test
-    void test_param_index_with_collection_param_type() {
-        Long id = 9898l;
-        List<String> names = new ArrayList<>();
-        names.add("name1");
-        names.add("name2");
-
-        service.execute(id, names);
-    }
-
-    @Test
-    void test_param_index_lock_two_params() throws InterruptedException {
-        String name = "order name";
-        Long id = 9080l;
-        Long result = service.execute(id, name);
-        Assert.assertEquals(id, result);
-    }
-
-    @Test
     void test_multiple_threads_lock() throws InterruptedException {
         int THREAD_POOL_SIZE = 100;
         int JOB_COUNT = 10;
@@ -64,7 +30,7 @@ class MockServiceTest {
                 try {
                     String name = "order name";
                     Long id = 9080l;
-                    Long result = service.execute(id, name);
+                    Long result = service.execute_lockable_1(name, id);
                 } catch (Exception e) {
                     System.out.println(e);
                     Thread.currentThread().interrupt();
@@ -79,4 +45,100 @@ class MockServiceTest {
         System.out.println("COUNT: " + MockService.COUNT);
     }
 
+    @Test
+    void test_lockable_1() throws InterruptedException {
+        service.execute_lockable_1("Rebecca", 1998l);
+    }
+
+    @Test
+    void test_lockable_2() {
+        Order order = new Order(999l, "order1");
+        order.setId(999l);
+        service.execute_lockable_2(order);
+    }
+
+    @Test
+    void test_lockable_3() {
+        Order order = new Order(111l, "order1");
+        Item item = new Item(222l, "item1");
+        order.setItem(item);
+        service.execute_lockable_3(order);
+    }
+
+    @Test
+    void test_lockable_4() {
+        Order order = new Order(111l, "order1");
+        Item item = new Item(222l, "item1");
+        order.setItem(item);
+        service.execute_lockable_4(order);
+    }
+
+    @Test
+    void test_lockable_5() {
+        Order order = new Order(111l, "order1");
+        Item item = new Item(222l, "item1");
+        order.setItem(item);
+        service.execute_lockable_5(order, item);
+    }
+
+    @Test
+    void test_lockable_6() {
+        Order order = new Order(111l, "order1");
+        Item item = new Item(222l, "item1");
+        order.setItem(item);
+        service.execute_lockable_6(order, item);
+    }
+
+    @Test
+    void test_lockable_7() {
+        Order order = new Order(111l, "order1");
+        Item item = new Item(222l, "item1");
+        order.setItem(item);
+        service.execute_lockable_7(order, "key001");
+    }
+
+    @Test
+    void test_lockable_8() {
+        Order order1 = new Order(111l, "order1");
+        Order order2 = new Order(222l, "order2");
+        List<Order> orders = new ArrayList<>();
+        orders.add(order1);
+        orders.add(order2);
+
+        service.execute_lockable_8(orders);
+    }
+
+    @Test
+    void test_lockable_9() {
+        Order order1 = new Order(111l, "order1");
+        Order order2 = new Order(222l, "order2");
+        List<Order> orders = new ArrayList<>();
+        orders.add(order1);
+        orders.add(order2);
+
+        service.execute_lockable_9(orders, "name1", "order_name");
+    }
+
+    @Test
+    void test_lockable_10() {
+        Order order1 = new Order(111l, "order1");
+        Order order2 = new Order(222l, "order2");
+        List<Order> orders = new ArrayList<>();
+        orders.add(order1);
+        orders.add(order2);
+
+        service.execute_lockable_10(orders, "name1", "order_name");
+    }
+
+    @Test
+    void test_lockable_11() {
+        Order order1 = new Order(111l, "order1");
+        Order order2 = new Order(222l, "order2");
+        List<Order> orders = new ArrayList<>();
+        orders.add(order1);
+        orders.add(order2);
+        Item item = new Item(333l, "item1");
+
+        service.execute_lockable_11(orders, item, "order_name");
+    }
 }

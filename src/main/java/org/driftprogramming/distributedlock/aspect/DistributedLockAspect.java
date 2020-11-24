@@ -1,20 +1,25 @@
-package org.driftprogramming.distributedlock;
+package org.driftprogramming.distributedlock.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.driftprogramming.distributedlock.DistributedLockException;
+import org.driftprogramming.distributedlock.LockType;
+import org.driftprogramming.distributedlock.annotation.DistributedLock;
+import org.driftprogramming.distributedlock.provider.LockKeyProvider;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Aspect
 @Component
@@ -24,9 +29,13 @@ public class DistributedLockAspect {
     public static final String MESSAGE_INVALID_INDEX = "Lock index out of range, please check the value.";
     public static final String MESSAGE_GET_LOCK_FAILED = "Thread %s get lock %s failed after %s %s.";
     public static final String MESSAGE_DISTRIBUTED_LOCK_FAILED = "Distributed lock failed.";
+    public static final String KEY_SEPARATOR = ".";
 
     @Resource
     private Redisson redisson;
+
+    @Autowired
+    private LockKeyProvider keyProvider;
 
     @Around("@annotation(distributedLock)")
     public Object around(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
@@ -39,7 +48,7 @@ public class DistributedLockAspect {
 
     private Object execute(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
         String prefix = getLockPrefix(joinPoint, distributedLock);
-        RLock lock = getLock(joinPoint.getArgs(), distributedLock.lockIndex(), prefix);
+        RLock lock = getLock(joinPoint, distributedLock, prefix);
         boolean isSuccessLocked = lock.tryLock(
                 distributedLock.waitTime(),
                 distributedLock.expireTime(),
@@ -71,36 +80,36 @@ public class DistributedLockAspect {
                 : distributedLock.lockType().toString();
     }
 
-    private RLock getLock(Object[] params, int[] lockIndex, String prefix) {
-        if (lockIndex.length > 0) {
-            return getMultipleLockByParameters(params, lockIndex, prefix);
+    private RLock getLock(ProceedingJoinPoint joinPoint, DistributedLock distributedLock, String prefix) {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        List<List<String>> keyCollections = getKeyCollections(method, distributedLock, joinPoint.getArgs());
+        List<String> keys = keyCollections.stream()
+                .flatMap(Collection::stream)
+                .filter(o -> o != null && o != "")
+                .map(o -> prefix + KEY_SEPARATOR + o)
+                .collect(Collectors.toList());
+
+        return this.getLockByKeys(new HashSet<String>(keys));
+    }
+
+    private List<List<String>> getKeyCollections(Method method, DistributedLock annotation, Object[] arguments) {
+        if (annotation.key().length == 0) {
+            return Collections.singletonList(keyProvider.get(null, method, arguments));
         } else {
-            return redisson.getLock(prefix);
+            return Stream.of(annotation.key())
+                    .map(keyDefinition -> keyProvider.get(keyDefinition, method, arguments))
+                    .collect(Collectors.toList());
         }
     }
 
-    private RLock getMultipleLockByParameters(Object[] params, int[] lockIndex, String prefix) {
+    private RLock getLockByKeys(HashSet<String> keys) {
         List<RLock> locks = new ArrayList<>();
-        for (int index : lockIndex) {
-            if (index >= params.length) {
-                throw new RuntimeException(MESSAGE_INVALID_INDEX);
-            }
+        for (String key : keys) {
 
-            Object paramValue = params[index];
-            locks.addAll(getLocksByParameterValue(paramValue, prefix));
+            locks.add(redisson.getLock(key));
         }
 
         return redisson.getMultiLock(locks.toArray(new RLock[locks.size()]));
-    }
-
-    private List<RLock> getLocksByParameterValue(Object paramValue, String prefix) {
-        if (paramValue instanceof Collection<?>) {
-            return ((Collection<?>) paramValue)
-                    .stream()
-                    .map(v -> redisson.getLock(prefix + "_" + v.toString()))
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.singletonList(redisson.getLock(prefix + "_" + paramValue));
-        }
     }
 }
