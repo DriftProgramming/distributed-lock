@@ -121,3 +121,16 @@ try {
 we suggested you use （Optimistic Lock(Version Strategy) + Distributed Lock）to keep the Eventual Consistency.
 E.g. what if somehow one distributed lock method running too long and can not unlock as we expected, so
 you need to use Optimistic Lock to keep the business data has Eventual Consistency.
+
+## If you want to call user defined function (It's not suitable for most cases 'cause we need to pre-define these functions.)
+```
+ExpressionParser parser = new SpelExpressionParser();
+StandardEvaluationContext context = new StandardEvaluationContext();
+
+context.registerFunction("reverseString",
+                         StringUtils.class.getDeclaredMethod("reverseString",
+                                                             new Class[] { String.class }));
+
+String helloWorldReversed =
+          parser.parseExpression("#reverseString('hello')").getValue(context, String.class);
+```
