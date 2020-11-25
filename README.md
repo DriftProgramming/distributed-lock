@@ -138,3 +138,28 @@ void method2(String name) {
 }
 
 ``` 
+#### Solution 1:
+Separate method2 into another object.
+
+
+#### Solution 2:
+Add @EnableAspectJAutoProxy(exposeProxy = true) onto your springboot application.
+@SpringBootApplication
+@EnableAspectJAutoProxy(exposeProxy = true)
+public class DistributedLockApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DistributedLockApplication.class, args);
+	}
+}
+
+And then 
+```aidl
+void method1() {
+   ((YourClassType) AopContext.currentProxy()).method2("name1");
+}
+
+@DistributedLock(key = {"#name"})
+void method2(String name) {
+}
+```
