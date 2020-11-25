@@ -122,15 +122,19 @@ we suggested you use （Optimistic Lock(Version Strategy) + Distributed Lock）t
 E.g. what if somehow one distributed lock method running too long and can not unlock as we expected, so
 you need to use Optimistic Lock to keep the business data has Eventual Consistency.
 
-## If you want to call user defined function (It's not suitable for most cases 'cause we need to pre-define these functions.)
-```
-ExpressionParser parser = new SpelExpressionParser();
-StandardEvaluationContext context = new StandardEvaluationContext();
+## Notes
+- `@DistributedLock` annotation based on Spring AOP, it works for spring bean only, it means it will not work for nested method calling. E.g.:
 
-context.registerFunction("reverseString",
-                         StringUtils.class.getDeclaredMethod("reverseString",
-                                                             new Class[] { String.class }));
+#### Noncompliant Code Example
 
-String helloWorldReversed =
-          parser.parseExpression("#reverseString('hello')").getValue(context, String.class);
-```
+```aidl
+void method1() {
+  this.method2(); // This will NOT work!!
+}
+
+@DistributedLock(key = {"#name"})
+void method2(String name) {
+
+}
+
+``` 
