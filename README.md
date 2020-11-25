@@ -143,8 +143,9 @@ Separate method2 into another object.
 
 
 #### Solution 2:
-Add @EnableAspectJAutoProxy(exposeProxy = true) onto your springboot application.
+Add `@EnableAspectJAutoProxy(exposeProxy = true)` onto your springboot application.
 
+```aidl
 
 @SpringBootApplication
 @EnableAspectJAutoProxy(exposeProxy = true)
@@ -154,6 +155,7 @@ public class DistributedLockApplication {
 		SpringApplication.run(DistributedLockApplication.class, args);
 	}
 }
+```
 
 And then 
 ```aidl
