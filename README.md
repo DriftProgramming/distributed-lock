@@ -144,6 +144,8 @@ Separate method2 into another object.
 
 #### Solution 2:
 Add @EnableAspectJAutoProxy(exposeProxy = true) onto your springboot application.
+
+
 @SpringBootApplication
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class DistributedLockApplication {
