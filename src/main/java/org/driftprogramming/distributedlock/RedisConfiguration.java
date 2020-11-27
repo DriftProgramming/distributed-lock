@@ -26,7 +26,12 @@ public class RedisConfiguration {
     @Bean
     public Redisson redisson() {
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://" + host + ":" + port);
+        //        config.useSingleServer().setAddress("redis://" + host + ":" + port);
+        config.useSentinelServers()
+                .addSentinelAddress("redis://localhost:26379",
+                        "redis://localhost:26380",
+                        "redis://localhost:26381")
+                .setMasterName("redis-local-cluster");
         return (Redisson) Redisson.create(config);
     }
 }
