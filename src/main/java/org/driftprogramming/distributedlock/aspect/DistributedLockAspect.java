@@ -39,16 +39,19 @@ public class DistributedLockAspect {
 
     @Around("@annotation(distributedLock)")
     public Object around(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
-        try {
-            return execute(joinPoint, distributedLock);
-        } catch (Exception e) {
-            throw new DistributedLockException(MESSAGE_DISTRIBUTED_LOCK_FAILED, e);
-        }
+        return execute(joinPoint, distributedLock);
     }
 
     private Object execute(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
-        String prefix = getLockPrefix(joinPoint, distributedLock);
-        RLock lock = getLock(joinPoint, distributedLock, prefix);
+        String prefix = null;
+        RLock lock = null;
+        try {
+            prefix = getLockPrefix(joinPoint, distributedLock);
+            lock = getLock(joinPoint, distributedLock, prefix);
+        } catch (Exception e) {
+            throw new DistributedLockException(e.getMessage(), e);
+        }
+
         boolean isSuccessLocked = lock.tryLock(
                 distributedLock.waitTime(),
                 distributedLock.expireTime(),
@@ -64,7 +67,7 @@ public class DistributedLockAspect {
                 }
             }
         } else {
-            throw new RuntimeException(String.format(MESSAGE_GET_LOCK_FAILED,
+            throw new DistributedLockException(String.format(MESSAGE_GET_LOCK_FAILED,
                     Thread.currentThread().getId(),
                     distributedLock.lockType(),
                     distributedLock.waitTime(),
